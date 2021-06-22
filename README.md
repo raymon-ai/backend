@@ -5,7 +5,7 @@
 
 - Replace the value of `RAYMON_MGMT_API_CLIENT_ID` in `stack.yml` with your Client ID
 - Create docker secrets:
-    - `echo "<your Client secret>" | docker secret create raymon-mgmt-api-secret-staging -`
+    - `echo "<your Client secret>" | docker secret create raymon-mgmt-api-secret -`
     - `echo "your passwork" | docker secret create raymondb-password -`
 - Run `docker stack deploy -c stack.yml raymon`
 

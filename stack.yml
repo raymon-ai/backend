@@ -28,13 +28,13 @@ services:
       # MGMT config
       RAYMON_MGMT_URL: https://mgmt.staging.raymon.cloud
       RAYMON_MGMT_API_CLIENT_ID: <TO REPLACE>
-      RAYMON_MGMT_API_CLIENT_SECRET: raymon-mgmt-api-secret-staging
+      RAYMON_MGMT_API_CLIENT_SECRET: raymon-mgmt-api-secret
       RAYMON_MGMT_API_AUDIENCE: raymon-mgmt-api
       RAYMON_API_AUDIENCE: raymon-backend-api
-      RAYMON_AUTH0_URL: https://raymon-staging.eu.auth0.com
+      RAYMON_AUTH0_URL: https://raymon.eu.auth0.com
     secrets:
       - raymondb-password
-      - raymon-mgmt-api-secret-staging
+      - raymon-mgmt-api-secret
     depends_on:
       - rabbitmq
       - raymon-db
@@ -153,5 +153,5 @@ volumes:
 secrets:
   raymondb-password:
     external: true
-  raymon-mgmt-api-secret-staging:
+  raymon-mgmt-api-secret:
     external: true
