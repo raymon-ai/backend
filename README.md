@@ -1,3 +1,6 @@
+# License
+See [LICENSE.md](LICENSE.md)
+
 # Deployment
 
 ## Docker swarm
