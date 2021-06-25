@@ -2,15 +2,14 @@ version: "3.7"
 services:
   ui:
     build: .
-    image: raymonteam/raymon_frontend:0.0.36-dev53
-    container_name: raymon_ui
+    image: raymonteam/raymon_frontend:0.0.37
     ports:
-      - "3000:80"
+      - "8080:80"
     environment:
-      API_URL: https://api.raymon.ai/v0
-      UI_URL: http://localhost:3000
+      API_URL: <to replace>
+
   api:
-    image: raymonteam/raymon_api:0.0.37
+    image: raymonteam/raymon_api:0.0.38
     ports:
       - 8000:5000
     environment:
@@ -26,8 +25,8 @@ services:
       KAFKA_PORT: 9092
       KAFKA_MAPPER_TOPIC: map-req-topic
       # MGMT config
-      RAYMON_MGMT_URL: https://mgmt.staging.raymon.cloud
-      RAYMON_MGMT_API_CLIENT_ID: <TO REPLACE>
+      RAYMON_MGMT_URL: https://mgmt.raymon.cloud
+      RAYMON_MGMT_API_CLIENT_ID: <to replace>
       RAYMON_MGMT_API_CLIENT_SECRET: raymon-mgmt-api-secret
       RAYMON_MGMT_API_AUDIENCE: raymon-mgmt-api
       RAYMON_API_AUDIENCE: raymon-backend-api
@@ -36,16 +35,10 @@ services:
       - raymondb-password
       - raymon-mgmt-api-secret
     depends_on:
-      - rabbitmq
-      - raymon-db
-    deploy:
-      resources:
-        reservations:
-          cpus: "1"
-          memory: 2G
+      - db
 
   db:
-    image: raymonteam/raymon_db:0.0.37
+    image: raymonteam/raymon_db:0.0.38
     ports:
       - 5432:5432
     environment:
@@ -62,12 +55,8 @@ services:
     image: "docker.io/bitnami/zookeeper:3-debian-10"
     ports:
       - "2181:2181"
-    # volumes:
-    #   - "zookeeper_data:/bitnami"
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
-    # networks:
-    #   - connectall
 
   kafka:
     image: "docker.io/bitnami/kafka:2-debian-10"
@@ -75,8 +64,6 @@ services:
       - "9092:9092"
       - "9093:9093"
       - "9094:9094"
-    # volumes:
-    #   - "kafka_data:/bitnami"
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
@@ -88,10 +75,9 @@ services:
       - KAFKA_CFG_REPLICA_FETCH_MAX_BYTES=15000000
     depends_on:
       - zookeeper
-    # networks:
-    #   - connectall
+
   mapper:
-    image: raymonteam/raymon_mapworker:0.0.37
+    image: raymonteam/raymon_mapworker:0.0.38
     environment:
       PYTHONUNBUFFERED: 1 # Force print flushes
       SECRET_PATH: /run/secrets
@@ -110,7 +96,7 @@ services:
       - db
 
   reducer:
-    image: raymonteam/raymon_reducer:0.0.37
+    image: raymonteam/raymon_reducer:0.0.38
     environment:
       PYTHONUNBUFFERED: 1 # Force print flushes
       SECRET_PATH: /run/secrets
@@ -129,7 +115,7 @@ services:
       - db
 
   triggergen:
-    image: raymonteam/raymon-triggergen:0.0.37
+    image: raymonteam/raymon-triggergen:0.0.38
     environment:
       PYTHONUNBUFFERED: 1 # Force print flushes
       SECRET_PATH: /run/secrets
