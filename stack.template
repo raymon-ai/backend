@@ -1,17 +1,18 @@
 version: "3.7"
 services:
   ui:
-    build: .
-    image: raymonteam/raymon_frontend:0.0.37
+    image: raymonteam/raymon_frontend:0.0.39
     ports:
-      - "8080:80"
+      - "80:80"
     environment:
-      API_URL: <to replace>
+      API_URL: auto
+    depends_on:
+      - api
 
   api:
-    image: raymonteam/raymon_api:0.0.38
+    image: raymonteam/raymon_api:0.0.39
     ports:
-      - 8000:5000
+      - 5000:5000
     environment:
       PYTHONUNBUFFERED: 1 # Force print flushes
       SECRET_PATH: /run/secrets
@@ -26,7 +27,7 @@ services:
       KAFKA_MAPPER_TOPIC: map-req-topic
       # MGMT config
       RAYMON_MGMT_URL: https://mgmt.raymon.cloud
-      RAYMON_MGMT_API_CLIENT_ID: <to replace>
+      RAYMON_MGMT_API_CLIENT_ID: <to overwrite>
       RAYMON_MGMT_API_CLIENT_SECRET: raymon-mgmt-api-secret
       RAYMON_MGMT_API_AUDIENCE: raymon-mgmt-api
       RAYMON_API_AUDIENCE: raymon-backend-api
@@ -36,9 +37,14 @@ services:
       - raymon-mgmt-api-secret
     depends_on:
       - db
+    deploy:
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2GB
 
   db:
-    image: raymonteam/raymon_db:0.0.38
+    image: raymonteam/raymon_db:0.0.39
     ports:
       - 5432:5432
     environment:
@@ -50,6 +56,78 @@ services:
       - raymondb-password
     volumes:
       - dbdata:/var/lib/postgresql/data/
+    deploy:
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2GB
+
+  mapper:
+    image: raymonteam/raymon_mapworker:0.0.39
+    environment:
+      PYTHONUNBUFFERED: 1 # Force print flushes
+      SECRET_PATH: /run/secrets
+      RAYMONDB_HOST: db
+      RAYMONDB_PORT: 5432
+      RAYMONDB_DB: raymon
+      RAYMONDB_USER: postgres
+      RAYMONDB_PASSWORD_SECRET: raymondb-password
+      KAFKA_HOST: "kafka"
+      KAFKA_PORT: 9092
+      KAFKA_MAPPER_TOPIC: map-req-topic
+    secrets:
+      - raymondb-password
+    depends_on:
+      - kafka
+      - db
+    deploy:
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2GB
+
+  reducer:
+    image: raymonteam/raymon_reducer:0.0.39
+    environment:
+      PYTHONUNBUFFERED: 1 # Force print flushes
+      SECRET_PATH: /run/secrets
+      RAYMONDB_HOST: db
+      RAYMONDB_PORT: 5432
+      RAYMONDB_DB: raymon
+      RAYMONDB_USER: postgres
+      RAYMONDB_PASSWORD_SECRET: raymondb-password
+      KAFKA_HOST: "kafka"
+      KAFKA_PORT: 9092
+      KAFKA_REDUCE_TOPIC: reduce-req-topic
+    secrets:
+      - raymondb-password
+    depends_on:
+      - kafka
+      - db
+    deploy:
+      resources:
+        reservations:
+          cpus: "1"
+          memory: 2GB
+
+  triggergen:
+    image: raymonteam/raymon-triggergen:0.0.39
+    environment:
+      PYTHONUNBUFFERED: 1 # Force print flushes
+      SECRET_PATH: /run/secrets
+      RAYMONDB_HOST: db
+      RAYMONDB_PORT: 5432
+      RAYMONDB_DB: raymon
+      RAYMONDB_USER: postgres
+      RAYMONDB_PASSWORD_SECRET: raymondb-password
+      KAFKA_HOST: "kafka"
+      KAFKA_PORT: 9092
+      KAFKA_REDUCE_TOPIC: reduce-req-topic
+    secrets:
+      - raymondb-password
+    depends_on:
+      - kafka
+      - db
 
   zookeeper:
     image: "docker.io/bitnami/zookeeper:3-debian-10"
@@ -75,63 +153,6 @@ services:
       - KAFKA_CFG_REPLICA_FETCH_MAX_BYTES=15000000
     depends_on:
       - zookeeper
-
-  mapper:
-    image: raymonteam/raymon_mapworker:0.0.38
-    environment:
-      PYTHONUNBUFFERED: 1 # Force print flushes
-      SECRET_PATH: /run/secrets
-      RAYMONDB_HOST: db
-      RAYMONDB_PORT: 5432
-      RAYMONDB_DB: raymon
-      RAYMONDB_USER: postgres
-      RAYMONDB_PASSWORD_SECRET: raymondb-password
-      KAFKA_HOST: "kafka"
-      KAFKA_PORT: 9092
-      KAFKA_MAPPER_TOPIC: map-req-topic
-    secrets:
-      - raymondb-password
-    depends_on:
-      - kafka
-      - db
-
-  reducer:
-    image: raymonteam/raymon_reducer:0.0.38
-    environment:
-      PYTHONUNBUFFERED: 1 # Force print flushes
-      SECRET_PATH: /run/secrets
-      RAYMONDB_HOST: db
-      RAYMONDB_PORT: 5432
-      RAYMONDB_DB: raymon
-      RAYMONDB_USER: postgres
-      RAYMONDB_PASSWORD_SECRET: raymondb-password
-      KAFKA_HOST: "kafka"
-      KAFKA_PORT: 9092
-      KAFKA_REDUCE_TOPIC: reduce-req-topic
-    secrets:
-      - raymondb-password
-    depends_on:
-      - kafka
-      - db
-
-  triggergen:
-    image: raymonteam/raymon-triggergen:0.0.38
-    environment:
-      PYTHONUNBUFFERED: 1 # Force print flushes
-      SECRET_PATH: /run/secrets
-      RAYMONDB_HOST: db
-      RAYMONDB_PORT: 5432
-      RAYMONDB_DB: raymon
-      RAYMONDB_USER: postgres
-      RAYMONDB_PASSWORD_SECRET: raymondb-password
-      KAFKA_HOST: "kafka"
-      KAFKA_PORT: 9092
-      KAFKA_REDUCE_TOPIC: reduce-req-topic
-    secrets:
-      - raymondb-password
-    depends_on:
-      - kafka
-      - db
 
 volumes:
   dbdata:
