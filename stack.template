@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   ui:
-    image: raymonteam/raymon_frontend:0.0.39
+    image: raymonteam/raymon_frontend:0.0.40
     ports:
       - "80:80"
     environment:

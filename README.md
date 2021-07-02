@@ -6,7 +6,6 @@ See [LICENSE.md](LICENSE.md)
 ## 1. Notes before deploying
 
 First of all, the Raymon web UI needs to be accessed over a secured connection (TLS / HTTPS). The API does work over unsecured HTTP, but you should really use HTTPS too. This means you need to determine which URL you want the Raymon platform te be accessible (for example https://ui.raymon.internal.company.com and https://api.raymon.internal.company.com) and acquire a TLS certificate for it (which you might already have). When deploying to a cloud provider (AWS, GCP, Azure, ...), there should be an easy way to get managed certificates (see further below). 
-
 If you are not deploying on a common cloud provider, you can deploy your own TLS endpoint alongside Raymon. See [TLS-ingress.md](TLS-ingress.md).
 
 Secondly, we need to enable the URL your UI is accessed at on our backend authentication provider or you won't be able to log in. You can do this automatically after deployment with your Raymon client ID and client secret. This does **not** mean that this URL does needs to be publicly accessable, you can still only make your Raymon deployment completely air gapped.
@@ -44,7 +43,7 @@ Same as 3.1, but deploy an extra Ingress controller / load balancer that serves 
 
 ### 3.3 Amazon ECS
 
-1. Make sure Docker is configured to [use ECS.](https://docs.docker.com/cloud/ecs-integration/).
+1. Make sure Docker is configured to [use ECS](https://docs.docker.com/cloud/ecs-integration/).
 2. Create docker secrets:
     - `echo "<your client secret>" | docker secret create raymon-mgmt-api-secret -`
     - `echo "your password" | docker secret create raymondb-password -`

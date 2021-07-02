@@ -1,7 +1,7 @@
 # Summary
 
 - **Is it open source?** \
-No, the software and intellectual property remains property of Raymon. 
+No, the software and intellectual property remain property of Raymon. 
 
 - **Can I use the Soft-ware?** \
 Yes please! You just need a Raymon license key. You can easily receive one by sending us a message at hello@raymon.ai.
