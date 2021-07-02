@@ -40,7 +40,7 @@ You can deploy Raymon to your local machine with Docker (swarm mode) for quick t
 4. Run `docker stack deploy raymon`
 
 ### 3.2 Deploy on remote Docker
-Same as 3.1, but deploy an extra Ingress controller / load balancer that serves as TLS endpoint.
+Same as 3.1, but deploy an extra Ingress controller / load balancer that serves as TLS endpoint as described in [TLS-ingress.md](TLS-ingress.md).
 
 ### 3.3 Amazon ECS
 
@@ -78,4 +78,5 @@ task/backend/5682356515bb41e89580d95ac506ce7d   mapper              Running
 The API will now be available on `https://raymon.dev.company.com:5001` and the UI should be at `https://raymon.dev.company.com`. Be sure to activate your UI first!
 
 ## 3. Post Deployment
-Enable your UI on out backend.
+We still need to enable your UI deployment on our Auth backend. For now, you need to [mail us](mailto:hello@raymon.ai) the URL of your UI, and we'll enable it.
+
