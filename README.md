@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="500"  src="images/Logo-blue-ai.png">
+</p>
+
 # License
 See [LICENSE.md](LICENSE.md)
 
@@ -11,18 +15,29 @@ If you are not deploying on a common cloud provider, you can deploy your own TLS
 Secondly, we need to enable the URL your UI is accessed at on our backend authentication provider or you won't be able to log in. You can do this automatically after deployment with your Raymon client ID and client secret. This does **not** mean that this URL does needs to be publicly accessable, you can still only make your Raymon deployment completely air gapped.
 
 ## 2. Deploying on Kubernetes
-The recommended way to deploy Raymon is to run it on Kubernetes (k8s). 
+The recommended way to deploy Raymon is to run it on Kubernetes (k8s). After deployment, be sure to read step 3 too!
 
-### 2.1 Google GKE
-Instructions coming soon.
+### 2.1 Deploying the core services
 
-### 2.2 Amazon EKS
-Instructions coming soon.
+1. Open the `raymon-core.yaml` file and make the following updates:
+    - Replace `<<your client secret>>` in the Secret definition with your client secret.
+    - Replace `<<choose a password>>` in the Secret definition with a password. This will be used for the database.
+    - Replace `<<your client id>>` with your client ID. There are multiple occurrences of this string so make sure to get them all!
+2. Run `kubectl apply -f raymon-core.yaml`
 
-### 2.3 Azure AKS
-Instructions coming soon.
+**Remarks:**
+- All data is currently stored on a PVC that is automatically provisioned. To have more control (e.g. for backups and portability) about where your data is stored, provision a PV first and connect it to the PVC.
 
-### 2.4 Other Kubernetes
+
+### 2.2 Deploying the ingress
+
+#### 2.2.1 Google GKE
+To set up the ingress on GKE, edit the `k8s/ingress-gcp.yaml` file with your details and apply it. It can take a while before everything works though (provisioning a certificate kan take up to an hour for example).
+
+#### 2.2.2 Amazon EKS
+To set up the ingress on GKE, edit the `k8s/ingress-aws.yaml` file with your details and apply it.
+
+#### 2.2.4 Other Kubernetes
 Eh-oh, uncharted territory. Please [contact us](mailto:hello@raymon.ai) and we'll help you out.
 
 ## 3. Alternative Deployment options

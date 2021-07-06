@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    # For AWS, to set up a load balancer
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/subnets: subnet-04f7f946f57b7e02d, subnet-02ec299b61982f538
+
+  labels:
+    app: raymon-backend
+  name: raymon-api-ingress
+spec:
+  rules:
+    - host: api.aws.raymon.app
+      http:
+        paths:
+          - backend:
+              serviceName: raymon-api
+              servicePort: 5000
+            path: /v0/*
+    - host: ui.aws.raymon.app
+      http:
+        paths:
+          - backend:
+              serviceName: raymon-ui
+              servicePort: 80
+            path: /*
