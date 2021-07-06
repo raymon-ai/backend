@@ -9,10 +9,9 @@ See [LICENSE.md](LICENSE.md)
 
 ## 1. Notes before deploying
 
-First of all, the Raymon web UI needs to be accessed over a secured connection (TLS / HTTPS). The API does work over unsecured HTTP, but you should really use HTTPS too. This means you need to determine which URL you want the Raymon platform te be accessible (for example https://ui.raymon.internal.company.com and https://api.raymon.internal.company.com) and acquire a TLS certificate for it (which you might already have). When deploying to a cloud provider (AWS, GCP, Azure, ...), there should be an easy way to get managed certificates (see further below). 
-If you are not deploying on a common cloud provider, you can deploy your own TLS endpoint alongside Raymon. See [TLS-ingress.md](TLS-ingress.md).
+First of all, the Raymon web UI needs to be accessed over a secured connection (TLS / HTTPS). The API does work over unsecured HTTP, but you should really use HTTPS too. This means you need to determine which URL you want the Raymon platform te be accessible (for example https://ui.raymon.internal.company.com ) and acquire a TLS certificate for it. When deploying to a cloud provider (AWS, GCP, Azure, ...), there should be an easy way to get managed certificates (see further below). If you are not deploying on a common cloud provider, you can deploy your own TLS endpoint alongside Raymon. See [TLS-ingress.md](TLS-ingress.md).
 
-Secondly, we need to enable the URL your UI is accessed at on our backend authentication provider or you won't be able to log in. You can do this automatically after deployment with your Raymon client ID and client secret. This does **not** mean that this URL does needs to be publicly accessable, you can still only make your Raymon deployment completely air gapped.
+Secondly, we need to enable the URL your UI is accessed at on our backend authentication provider or you won't be able to log in. This does **not** mean that this URL does needs to be publicly accessable, you can still only make your Raymon deployment completely air gapped.
 
 ## 2. Deploying on Kubernetes
 The recommended way to deploy Raymon is to run it on Kubernetes (k8s). After deployment, be sure to read step 3 too!
