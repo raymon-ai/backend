@@ -200,7 +200,7 @@ spec:
               value: "9092"
             - name: KAFKA_MAPPER_TOPIC
               value: map-req-topic
-          image: raymonteam/raymon_api:0.0.39
+          image: raymonteam/raymon_api:0.0.40
           imagePullPolicy: ""
           name: raymon-api
           ports:
@@ -269,7 +269,7 @@ spec:
               value: client_credentials
             - name: RAYMON_API_URL
               value: http://raymon-api:5000/v0
-          image: raymonteam/raymon_ingestor:0.0.39
+          image: raymonteam/raymon_ingestor:0.0.40
           imagePullPolicy: ""
           name: raymon-ingestor
           volumeMounts:
@@ -321,7 +321,7 @@ spec:
               value: "9092"
             - name: KAFKA_MAPPER_TOPIC
               value: map-req-topic
-          image: raymonteam/raymon_mapworker:0.0.39
+          image: raymonteam/raymon_mapworker:0.0.40
           imagePullPolicy: ""
           name: raymon-mapper
           volumeMounts:
@@ -373,7 +373,7 @@ spec:
               value: "9092"
             - name: KAFKA_REDUCE_TOPIC
               value: reduce-req-topic
-          image: raymonteam/raymon_reducer:0.0.39
+          image: raymonteam/raymon_reducer:0.0.40
           imagePullPolicy: ""
           name: raymon-reducer
           volumeMounts:
@@ -425,7 +425,7 @@ spec:
               value: "9092"
             - name: KAFKA_REDUCE_TOPIC
               value: reduce-req-topic
-          image: raymonteam/raymon-triggergen:0.0.39
+          image: raymonteam/raymon-triggergen:0.0.40
           imagePullPolicy: ""
           name: raymon-triggergen
           volumeMounts:
@@ -459,7 +459,7 @@ spec:
         - env:
             - name: API_URL
               value: https://api.aws.raymon.app/v0
-          image: raymonteam/raymon_frontend:0.0.40
+          image: raymonteam/raymon_frontend:0.0.41
           name: raymon-ui
           ports:
             - containerPort: 80
@@ -520,7 +520,7 @@ spec:
               value: postgres
             - name: POSTGRES_PASSWORD_FILE
               value: /etc/secret-volume/raymondb-password
-          image: raymonteam/raymon_db:0.0.39
+          image: raymonteam/raymon_db:0.0.40
           imagePullPolicy: ""
           name: raymon-db
           ports:
