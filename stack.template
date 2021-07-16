@@ -10,7 +10,7 @@ services:
       - api
 
   api:
-    image: raymonteam/raymon_api:0.0.40
+    image: raymonteam/raymon_api:0.0.42
     ports:
       - 5000:5000
     environment:
@@ -44,7 +44,7 @@ services:
           memory: 2GB
 
   db:
-    image: raymonteam/raymon_db:0.0.40
+    image: raymonteam/raymon_db:0.0.42
     ports:
       - 5432:5432
     environment:
@@ -63,7 +63,7 @@ services:
           memory: 2GB
 
   mapper:
-    image: raymonteam/raymon_mapworker:0.0.40
+    image: raymonteam/raymon_mapworker:0.0.42
     environment:
       PYTHONUNBUFFERED: 1 # Force print flushes
       SECRET_PATH: /run/secrets
@@ -87,7 +87,7 @@ services:
           memory: 2GB
 
   reducer:
-    image: raymonteam/raymon_reducer:0.0.40
+    image: raymonteam/raymon_reducer:0.0.42
     environment:
       PYTHONUNBUFFERED: 1 # Force print flushes
       SECRET_PATH: /run/secrets
@@ -111,7 +111,7 @@ services:
           memory: 2GB
 
   triggergen:
-    image: raymonteam/raymon-triggergen:0.0.40
+    image: raymonteam/raymon-triggergen:0.0.42
     environment:
       PYTHONUNBUFFERED: 1 # Force print flushes
       SECRET_PATH: /run/secrets
