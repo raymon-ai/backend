@@ -21,10 +21,3 @@ spec:
               serviceName: raymon-api
               servicePort: 5000
             path: /v0/*
-    - host: ui.aws.raymon.app
-      http:
-        paths:
-          - backend:
-              serviceName: raymon-ui
-              servicePort: 80
-            path: /*
