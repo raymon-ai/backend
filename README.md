@@ -92,3 +92,17 @@ The API will now be available on `https://raymon.dev.company.com:5001` and the U
 ## 3. Post Deployment
 You can now communicate with your Raymon API using the [client library](https://github.com/raymon-ai/raymon). You can also access the web UI at https://raymon.app and point it to your API.
 
+# Configuration
+
+Raymon already offers some configuration options, and more are to come. Most options are set using envrionment variables that you need to add to the config file you use for deployment,
+
+## Storing data on S3
+By default, Raymon stores all data that you log in a database. This is great to get started easily, but probably not what you want when you begin to scale. Raymon offers the option of storing raw data on S3. For doing so, you need to add the following environment variables to the API container.
+
+- `RAYMON_STORAGECLASS`: 's3'
+- `RAYMON_S3_BUCKET`: 'your_bucket_name'
+- `AWS_ACCESS_KEY_ID`: AWS access key for a user with Read and Write permissions to the bucket.
+- `AWS_SECRET_ACCESS_KEY`: AWS secret access key for a user with Read and Write permissions to the bucket.
+
+More is coming.
+
