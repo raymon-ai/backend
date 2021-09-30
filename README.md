@@ -8,10 +8,9 @@ See [LICENSE.md](LICENSE.md)
 # Deployment
 
 ## 1. Notes before deploying
+This README describes how to deploy the Raymon backend on a location of your choosing. The Web UI is deployed at https://raymon.app, and can be configrued to use your self-hosted API after deploying it as descirbed in the following document.
 
-First of all, the Raymon web UI needs to be accessed over a secured connection (TLS / HTTPS). The API does work over unsecured HTTP, but you should really use HTTPS too. This means you need to determine which URL you want the Raymon platform te be accessible (for example https://ui.raymon.internal.company.com ) and acquire a TLS certificate for it. When deploying to a cloud provider (AWS, GCP, Azure, ...), there should be an easy way to get managed certificates (see further below). If you are not deploying on a common cloud provider, you can deploy your own TLS endpoint alongside Raymon. See [TLS-ingress.md](TLS-ingress.md).
-
-Secondly, we need to enable the URL your UI is accessed at on our backend authentication provider or you won't be able to log in. This does **not** mean that this URL does needs to be publicly accessable, you can still only make your Raymon deployment completely air gapped.
+The web UI can only acces your API is it runs on a secure location, which means it needs to either communicate with this backend over TLS, or the backend should be accessable on localhost (or a localhost port-forward). This means you need to determine which URL you want to use for the Raymon backend (for example https://raymon.internal.company.com ) and acquire a TLS certificate for it. When deploying to a cloud provider (AWS, GCP, Azure, ...), there should be an easy way to get managed certificates (see further below). If you are not deploying on a common cloud provider, you can deploy your own TLS endpoint alongside Raymon. See [TLS-ingress.md](TLS-ingress.md).
 
 ## 2. Deploying on Kubernetes
 The recommended way to deploy Raymon is to run it on Kubernetes (k8s). After deployment, be sure to read step 3 too!
@@ -46,14 +45,14 @@ To get started, copy the `stack.template` file and name the copy `docker-compose
 You can deploy Raymon to your local machine with Docker (swarm mode) for quick testing.
 
 1. Make sure Docker is in [Swarm mode](https://docs.docker.com/engine/swarm/), if not run `docker swarm init`
-2. Replace the value of `RAYMON_MGMT_API_CLIENT_ID` in `stack-local.yml` with your Client ID
+2. Replace the value of `RAYMON_MGMT_API_CLIENT_ID` in `docker-compose.yml` with your Client ID
 3. Create docker secrets:
     - `echo "<your client secret>" | docker secret create raymon-mgmt-api-secret -`
     - `echo "your password" | docker secret create raymondb-password -`
 4. Run `docker stack deploy raymon`
 
 ### 3.2 Deploy on remote Docker
-Same as 3.1, but deploy an extra Ingress controller / load balancer that serves as TLS endpoint as described in [TLS-ingress.md](TLS-ingress.md).
+Same as 3.1, but deploy an extra TLS endpoint as described in [TLS-ingress.md](TLS-ingress.md).
 
 ### 3.3 Amazon ECS
 
@@ -88,8 +87,8 @@ task/backend/5682356515bb41e89580d95ac506ce7d   mapper              Running
 7. Go to the AWS Management Console > EC2 > Load Balancers. In the list of running instances theres should be one created by deploying Raymon. Its name will have the same prefix as the URL you copied in step 5. Select it and go to Listeners
 8. Add 2 Listeners, both using the TLS protocol: one listening on port 443 that forwards to the UI service, and one listening on port 5001 that forwards to the API service. The wizard will allow you to select or create a managed TLS certificate (for free) tied to your domain.
 
-The API will now be available on `https://raymon.dev.company.com:5001` and the UI should be at `https://raymon.dev.company.com`. Be sure to activate your UI first!
+The API will now be available on `https://raymon.dev.company.com:5001` and the UI should be at `https://raymon.dev.company.com`. 
 
 ## 3. Post Deployment
-We still need to enable your UI deployment on our Auth backend. For now, you need to [mail us](mailto:hello@raymon.ai) the URL of your UI, and we'll enable it.
+You can now communicate with your Raymon API using the [client library](https://github.com/raymon-ai/raymon). You can also access the web UI at https://raymon.app and point it to your API.
 

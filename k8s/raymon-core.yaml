@@ -1,15 +1,4 @@
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: raymon-db-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 250Gi
----
-apiVersion: v1
 kind: Secret
 metadata:
   name: raymon-secret
@@ -17,25 +6,6 @@ stringData:
   raymon-mgmt-api-secret: <<your client secret>>
   raymondb-password: <<choose a password>>
 type: Opaque
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: kafka
-  name: kafka
-spec:
-  ports:
-    - name: kafka-port-internal
-      port: 9092
-      protocol: TCP
-    - name: kafka-port-external
-      port: 9093
-      protocol: TCP
-  selector:
-    app: kafka
-    id: "0"
-  type: NodePort
 ---
 apiVersion: v1
 kind: Service
@@ -73,77 +43,19 @@ status:
   loadBalancer: {}
 ---
 apiVersion: v1
-kind: Service
+kind: PersistentVolumeClaim
 metadata:
-  creationTimestamp: null
-  labels:
-    app: raymon-backend
-    raymon.service: raymon-ui
-  name: raymon-ui
+  name: raymon-db-pvc
 spec:
-  ports:
-    - name: default
-      port: 80
-      targetPort: 80
-  selector:
-    raymon.service: raymon-ui
-  type: NodePort
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: zookeeper
-  name: zookeeper
-spec:
-  ports:
-    - name: client
-      port: 2181
-      protocol: TCP
-      targetPort: 2181
-  selector:
-    app: zookeeper
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kafka-broker0
-spec:
-  replicas: 1
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 250Gi
   selector:
     matchLabels:
-      app: kafka
-      id: "0"
-  template:
-    metadata:
-      labels:
-        app: kafka
-        id: "0"
-    spec:
-      containers:
-        - env:
-            - name: KAFKA_CFG_ZOOKEEPER_CONNECT
-              value: zookeeper:2181
-            - name: ALLOW_PLAINTEXT_LISTENER
-              value: "yes"
-            - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
-              value: CLIENT:PLAINTEXT,LOCALEXTERNAL:PLAINTEXT,DOCKEREXTERNAL:PLAINTEXT
-            - name: KAFKA_CFG_LISTENERS
-              value: CLIENT://:9092,LOCALEXTERNAL://:9093,DOCKEREXTERNAL://:9094
-            - name: KAFKA_CFG_ADVERTISED_LISTENERS
-              value: CLIENT://kafka:9092,LOCALEXTERNAL://localhost:9093,DOCKEREXTERNAL://host.docker.internal:9094
-            - name: KAFKA_INTER_BROKER_LISTENER_NAME
-              value: CLIENT
-            - name: KAFKA_CFG_MESSAGE_MAX_BYTES
-              value: "15000000"
-            - name: KAFKA_CFG_REPLICA_FETCH_MAX_BYTES
-              value: "15000000"
-          image: docker.io/bitnami/kafka:2-debian-10
-          name: kafka
-          ports:
-            - containerPort: 9092
-            - containerPort: 9093
-            - containerPort: 9094
+      environment: prod
+  storageClassName: ""
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -171,7 +83,7 @@ spec:
             - name: RAYMON_MGMT_URL
               value: https://mgmt.raymon.cloud
             - name: RAYMON_MGMT_API_CLIENT_ID
-              value: <<your client id>>
+              value: ppnbcqT6gTEzM3aSxbRGAR9N3G1n5agT
             - name: RAYMON_MGMT_API_CLIENT_SECRET
               value: raymon-mgmt-api-secret
             - name: RAYMON_MGMT_API_AUDIENCE
@@ -194,188 +106,11 @@ spec:
               value: postgres
             - name: RAYMONDB_PASSWORD_SECRET
               value: raymondb-password
-            - name: KAFKA_HOST
-              value: kafka
-            - name: KAFKA_PORT
-              value: "9092"
-            - name: KAFKA_MAPPER_TOPIC
-              value: map-req-topic
-          image: raymonteam/raymon_api:0.0.40
+          image: raymonteam/raymon_api:0.0.44
           imagePullPolicy: ""
           name: raymon-api
           ports:
             - containerPort: 5000
-          resources:
-            requests:
-              cpu: "1"
-          volumeMounts:
-            - mountPath: /etc/secret-volume
-              name: raymon-secret
-      restartPolicy: Always
-      volumes:
-        - name: raymon-secret
-          secret:
-            secretName: raymon-secret
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    raymon.service: raymon-ingestor
-  name: raymon-ingestor
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      raymon.service: raymon-ingestor
-  strategy: {}
-  template:
-    metadata:
-      labels:
-        app: raymon-backend
-        raymon.service: raymon-ingestor
-    spec:
-      containers:
-        - env:
-            - name: PYTHONUNBUFFERED
-              value: "1"
-            - name: SECRET_PATH
-              value: /etc/secret-volume
-            - name: RAYMONDB_HOST
-              value: raymon-db
-            - name: RAYMONDB_PORT
-              value: "5432"
-            - name: RAYMONDB_DB
-              value: raymon
-            - name: RAYMONDB_USER
-              value: postgres
-            - name: RAYMONDB_PASSWORD_SECRET
-              value: raymondb-password
-            - name: KAFKA_HOST
-              value: kafka
-            - name: KAFKA_PORT
-              value: "9092"
-            - name: KAFKA_LANDINGSTRIP_TOPIC
-              value: landingstrip
-            - name: RAYMON_AUTH0_URL
-              value: https://raymon.eu.auth0.com
-            - name: RAYMON_AUDIENCE
-              value: https://api.raymon.ai
-            - name: RAYMON_CLIENT_ID
-              value: <<your client id>>
-            - name: RAYMON_CLIENT_SECRET
-              value: raymon-mgmt-api-secret
-            - name: RAYMON_GRANT_TYPE
-              value: client_credentials
-            - name: RAYMON_API_URL
-              value: http://raymon-api:5000/v0
-          image: raymonteam/raymon_ingestor:0.0.40
-          imagePullPolicy: ""
-          name: raymon-ingestor
-          volumeMounts:
-            - mountPath: /etc/secret-volume
-              name: raymon-secret
-      restartPolicy: Always
-      volumes:
-        - name: raymon-secret
-          secret:
-            secretName: raymon-secret
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    raymon.service: raymon-mapper
-  name: raymon-mapper
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      raymon.service: raymon-mapper
-  strategy: {}
-  template:
-    metadata:
-      labels:
-        app: raymon-backend
-        raymon.service: raymon-mapper
-    spec:
-      containers:
-        - env:
-            - name: PYTHONUNBUFFERED
-              value: "1"
-            - name: SECRET_PATH
-              value: /etc/secret-volume
-            - name: RAYMONDB_HOST
-              value: raymon-db
-            - name: RAYMONDB_PORT
-              value: "5432"
-            - name: RAYMONDB_DB
-              value: raymon
-            - name: RAYMONDB_USER
-              value: postgres
-            - name: RAYMONDB_PASSWORD_SECRET
-              value: raymondb-password
-            - name: KAFKA_HOST
-              value: kafka
-            - name: KAFKA_PORT
-              value: "9092"
-            - name: KAFKA_MAPPER_TOPIC
-              value: map-req-topic
-          image: raymonteam/raymon_mapworker:0.0.40
-          imagePullPolicy: ""
-          name: raymon-mapper
-          volumeMounts:
-            - mountPath: /etc/secret-volume
-              name: raymon-secret
-      restartPolicy: Always
-      volumes:
-        - name: raymon-secret
-          secret:
-            secretName: raymon-secret
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    raymon.service: raymon-reducer
-  name: raymon-reducer
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      raymon.service: raymon-reducer
-  strategy: {}
-  template:
-    metadata:
-      labels:
-        app: raymon-backend
-        raymon.service: raymon-reducer
-    spec:
-      containers:
-        - env:
-            - name: PYTHONUNBUFFERED
-              value: "1"
-            - name: SECRET_PATH
-              value: /etc/secret-volume
-            - name: RAYMONDB_HOST
-              value: raymon-db
-            - name: RAYMONDB_PORT
-              value: "5432"
-            - name: RAYMONDB_DB
-              value: raymon
-            - name: RAYMONDB_USER
-              value: postgres
-            - name: RAYMONDB_PASSWORD_SECRET
-              value: raymondb-password
-            - name: KAFKA_HOST
-              value: kafka
-            - name: KAFKA_PORT
-              value: "9092"
-            - name: KAFKA_REDUCE_TOPIC
-              value: reduce-req-topic
-          image: raymonteam/raymon_reducer:0.0.40
-          imagePullPolicy: ""
-          name: raymon-reducer
           volumeMounts:
             - mountPath: /etc/secret-volume
               name: raymon-secret
@@ -419,13 +154,11 @@ spec:
               value: postgres
             - name: RAYMONDB_PASSWORD_SECRET
               value: raymondb-password
-            - name: KAFKA_HOST
-              value: kafka
-            - name: KAFKA_PORT
-              value: "9092"
-            - name: KAFKA_REDUCE_TOPIC
-              value: reduce-req-topic
-          image: raymonteam/raymon-triggergen:0.0.40
+            - name: API_HOST
+              value: raymon-api
+            - name: API_PORT
+              value: "5000"
+          image: raymonteam/raymon-triggergen:0.0.44
           imagePullPolicy: ""
           name: raymon-triggergen
           volumeMounts:
@@ -436,61 +169,6 @@ spec:
         - name: raymon-secret
           secret:
             secretName: raymon-secret
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: raymon-backend
-    raymon.service: raymon-ui
-  name: raymon-ui
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      raymon.service: raymon-ui
-  strategy: {}
-  template:
-    metadata:
-      labels:
-        raymon.service: raymon-ui
-    spec:
-      containers:
-        - env:
-            - name: API_URL
-              value: https://api.aws.raymon.app/v0
-          image: raymonteam/raymon_frontend:0.0.41
-          name: raymon-ui
-          ports:
-            - containerPort: 80
-      restartPolicy: Always
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: zookeeper-deploy
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: zookeeper
-  template:
-    metadata:
-      labels:
-        app: zookeeper
-    spec:
-      containers:
-        - env:
-            - name: ZOOKEEPER_ID
-              value: "1"
-            - name: ZOOKEEPER_SERVER_1
-              value: zoo1
-            - name: ALLOW_ANONYMOUS_LOGIN
-              value: "yes"
-          image: docker.io/bitnami/zookeeper:3-debian-10
-          name: zoo1
-          ports:
-            - containerPort: 2181
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -520,12 +198,11 @@ spec:
               value: postgres
             - name: POSTGRES_PASSWORD_FILE
               value: /etc/secret-volume/raymondb-password
-          image: raymonteam/raymon_db:0.0.40
+          image: raymonteam/raymon_db:0.0.44
           imagePullPolicy: ""
           name: raymon-db
           ports:
             - containerPort: 5432
-          resources: {}
           securityContext:
             runAsUser: 0
           volumeMounts:

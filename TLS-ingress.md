@@ -57,6 +57,6 @@ Copy your generated keys into the extra/keys folder and name them `cert.crt` and
       - 5001:5001
 
 ```
-The UI should now be accessible over HTTPS, and the API should be too, on port 5001.
+The API should now be accessible over HTTPS, on port 5001.
 
 Problems? Please [contact us](mailto:hello@raymon.ai)!

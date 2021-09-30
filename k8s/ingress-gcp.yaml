@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
@@ -11,20 +11,17 @@ metadata:
   name: raymon-api-ingress
 spec:
   rules:
-    - host: api.aws.raymon.app
+    # Replace with your domain(s)
+    - host: api.raymon.ai
       http:
         paths:
-          - backend:
-              serviceName: raymon-api
-              servicePort: 5000
-            path: /v0/*
-    - host: ui.aws.raymon.app
-      http:
-        paths:
-          - backend:
-              serviceName: raymon-ui
-              servicePort: 80
-            path: /*
+          - path: /v0/*
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: raymon-api
+                port:
+                  number: 5000
 
 ---
 apiVersion: networking.gke.io/v1beta2
@@ -34,5 +31,4 @@ metadata:
 spec:
   domains:
     # Replace with your domain(s)
-    - ui.raymon.ai
     - api.raymon.ai
