@@ -106,7 +106,7 @@ spec:
               value: postgres
             - name: RAYMONDB_PASSWORD_SECRET
               value: raymondb-password
-          image: eu.gcr.io/dev-infra-282913/raymon_api:0.0.44
+          image: raymonteam/raymon_api:0.0.44
           imagePullPolicy: ""
           name: raymon-api
           ports:
@@ -158,7 +158,7 @@ spec:
               value: raymon-api
             - name: API_PORT
               value: "5000"
-          image: eu.gcr.io/dev-infra-282913/raymon-triggergen:0.0.44
+          image: raymonteam/raymon-triggergen:0.0.44
           imagePullPolicy: ""
           name: raymon-triggergen
           volumeMounts:
@@ -198,7 +198,7 @@ spec:
               value: postgres
             - name: POSTGRES_PASSWORD_FILE
               value: /etc/secret-volume/raymondb-password
-          image: eu.gcr.io/dev-infra-282913/raymon_db:0.0.44
+          image: raymonteam/raymon_db:0.0.44
           imagePullPolicy: ""
           name: raymon-db
           ports:
