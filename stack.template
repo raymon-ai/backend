@@ -19,7 +19,7 @@ services:
       RAYMON_MGMT_API_CLIENT_SECRET: raymon-mgmt-api-secret
       RAYMON_MGMT_API_AUDIENCE: raymon-mgmt-api
       RAYMON_API_AUDIENCE: raymon-backend-api
-      RAYMON_AUTH0_URL: https://raymon-dev.eu.auth0.com
+      RAYMON_AUTH0_URL: https://raymon.eu.auth0.com
     secrets:
       - raymondb-password
       - raymon-mgmt-api-secret
